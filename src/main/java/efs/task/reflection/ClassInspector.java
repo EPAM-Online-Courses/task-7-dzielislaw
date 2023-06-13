@@ -1,8 +1,13 @@
 package efs.task.reflection;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 public class ClassInspector {
 
@@ -17,8 +22,13 @@ public class ClassInspector {
    */
   public static Collection<String> getAnnotatedFields(final Class<?> type,
       final Class<? extends Annotation> annotation) {
-    //TODO usuń zawartość tej metody i umieść tutaj swoje rozwiązanie
-    return Collections.emptyList();
+    Set<String> fieldSet = new HashSet<>();
+    for (Field i : type.getDeclaredFields()){
+      if(i.isAnnotationPresent(annotation)){
+        fieldSet.add(i.getName());
+      }
+    }
+    return fieldSet;
   }
 
   /**
@@ -31,8 +41,16 @@ public class ClassInspector {
    * implementowane
    */
   public static Collection<String> getAllDeclaredMethods(final Class<?> type) {
-    //TODO usuń zawartość tej metody i umieść tutaj swoje rozwiązanie
-    return Collections.emptyList();
+    Set<String> methodsSet = new HashSet<>();
+    for(Method method : type.getDeclaredMethods()){
+      methodsSet.add(method.getName());
+    }
+    for (Class i : type.getInterfaces()){
+      for(Method method : i.getDeclaredMethods()){
+        methodsSet.add(method.getName());
+      }
+    }
+    return methodsSet;
   }
 
   /**
@@ -50,7 +68,15 @@ public class ClassInspector {
    * @throws Exception wyjątek spowodowany nie znalezieniem odpowiedniego konstruktora
    */
   public static <T> T createInstance(final Class<T> type, final Object... args) throws Exception {
-    //TODO usuń zawartość tej metody i umieść tutaj swoje rozwiązanie
-    return null;
+    Class[] argClasses = new Class[args.length];
+    for (int i = 0; i < args.length; i++){
+      argClasses[i] = args[i].getClass();
+    }
+    Constructor<T> classConstructor = type.getDeclaredConstructor(argClasses);
+    if(classConstructor == null){
+      throw new Exception();
+    }
+    classConstructor.setAccessible(true);
+    return classConstructor.newInstance(args);
   }
 }
